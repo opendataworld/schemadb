@@ -1,28 +1,23 @@
 const { Surreal } = require('surrealdb');
 
+// Config from env
+const SurrealConfig = {
+  url: process.env.SURREAL_URL || 'ws://localhost:8000',
+  ns: process.env.SURREAL_NAMESPACE || 'test',
+  db: process.env.SURREAL_DATABASE || 'test'
+};
+
 async function test() {
   const db = new Surreal();
-  // Connect to local server (websocket)
-  await db.connect('ws://localhost:8000');
-  await db.use({ namespace: 'test', database: 'test' });
+  await db.connect(SurrealConfig.url);
+  await db.use({ namespace: SurrealConfig.ns, database: SurrealConfig.db });
 
-  // Create schema
-  await db.query(`
-    DEFINE TABLE entities SCHEMAFULL;
-    DEFINE FIELD name ON entities TYPE string;
-    DEFINE FIELD type ON entities TYPE string;
-    DEFINE FIELD description ON entities TYPE string;
-    DEFINE FIELD url ON entities TYPE string;
-  `);
-
-  console.log('Creating schema.org types...');
-  await db.query(`CREATE entities:thing SET name = 'Thing', type = 'rdfs:Class', description = 'The most generic type of item', url = 'https://schema.org/Thing'`);
-
-  await db.query(`CREATE entities:person SET name = 'Person', type = 'rdfs:Class', description = 'A person', url = 'https://schema.org/Person'`);
+  console.log(`Connected to ${SurrealConfig.url}/${SurrealConfig.ns}/${SurrealConfig.db}`);
 
   // Query all
-  console.log('\n--- All entities ---');
-  const all = await db.query('SELECT name, type FROM entities');
+  console.log('\n--- Query: entities ---');
+  const [all] = await db.query('SELECT * FROM entities');
+  console.log(`Found ${all.length} entities:`);
   for (const e of all) {
     console.log(`- ${e.name} (${e.type})`);
   }
@@ -31,7 +26,4 @@ async function test() {
   await db.close();
 }
 
-test().catch(e => {
-  console.error('Error:', e.message);
-  console.log('\nNeed SurrealDB server running: surreal start --auth --user root --pass root');
-});
+test().catch(console.error);
