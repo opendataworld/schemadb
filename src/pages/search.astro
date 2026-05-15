@@ -1,0 +1,327 @@
+---
+const title = 'Search - schema.org Agent';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-dark: #0d1117;
+      --bg-card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+      --success: #3fb950;
+      --warning: #d29922;
+      --error: #f85149;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; }
+    header { text-align: center; margin-bottom: 2rem; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .subtitle { color: var(--text-muted); font-size: 1rem; }
+    
+    /* Search Form */
+    .search-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .search-form { display: flex; gap: 0.75rem; }
+    .search-form input {
+      flex: 1;
+      padding: 0.875rem 1.25rem;
+      font-size: 1.125rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-form input:focus { border-color: var(--accent); }
+    .search-form button {
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--accent);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .search-form button:hover { background: var(--accent-hover); }
+    .search-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    /* Search Options */
+    .search-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .option label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+    .option input[type="checkbox"] { accent-color: var(--accent); }
+    
+    /* Results */
+    .results { margin-top: 2rem; }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .results-count { color: var(--text-muted); font-size: 0.875rem; }
+    
+    .result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .result-card:hover { border-color: var(--accent); }
+    .result-type {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+    .type-type { background: #1f6feb; color: #fff; }
+    .type-property { background: #6e40c9; color: #fff; }
+    .type-enumeration { background: #bf8700; color: #fff; }
+    .result-name { font-size: 1.125rem; font-weight: 600; color: var(--accent); }
+    .result-name a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .result-name a:hover { text-decoration: underline; }
+    .result-description {
+      color: var(--text-muted);
+      margin: 0.5rem 0;
+      line-height: 1.6;
+    }
+    .result-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .result-meta a { color: var(--accent); text-decoration: none; }
+    .result-meta a:hover { text-decoration: underline; }
+    
+    /* No Results */
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    
+    /* Loading */
+    .loading { text-align: center; padding: 2rem; color: var(--text-muted); }
+    
+    /* Tabs */
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .tab {
+      padding: 0.75rem 1.25rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    
+    /* Sources */
+    .sources { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .source-tag {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .source-tag:hover, .source-tag.active { border-color: var(--accent); color: var(--accent); }
+    
+    /* Navigation */
+    nav { display: flex; gap: 1rem; margin-bottom: 2rem; }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 0.5rem 0;
+    }
+    nav a:hover, nav a.active { color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <a href="/" class="active">🔍 Search</a>
+      <a href="/chat">💬 Chat</a>
+    </nav>
+    
+    <header>
+      <h1>🔍 schema.org Search</h1>
+      <p class="subtitle">Search types, properties, and vocabulary from schema.org</p>
+    </header>
+    
+    <div class="search-box">
+      <form class="search-form" id="searchForm">
+        <input 
+          type="text" 
+          id="query" 
+          placeholder="Search schema.org (e.g., 'Person', 'address', 'CreativeWork')"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="searchBtn">Search</button>
+      </form>
+      
+      <div class="search-options">
+        <div class="option">
+          <label>
+            <input type="checkbox" id="searchTypes" checked />
+            Types
+          </label>
+        </div>
+        <div class="option">
+          <label>
+            <input type="checkbox" id="searchProperties" checked />
+            Properties
+          </label>
+        </div>
+        <div class="option">
+          <label>
+            <input type="checkbox" id="searchEnumeration" />
+            Enumerations
+          </label>
+        </div>
+        <div class="option">
+          <label>
+            <input type="checkbox" id="hybridSearch" />
+            🔎 Hybrid (semantic + lexical)
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <div class="results" id="results">
+      <div class="no-results">
+        <p>Enter a search term to find schema.org types and properties</p>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const queryInput = document.getElementById('query');
+    const searchForm = document.getElementById('searchForm');
+    const resultsDiv = document.getElementById('results');
+    const searchBtn = document.getElementById('searchBtn');
+    
+    // Sample schema.org data (in production, this comes from SurrealDB)
+    const schemaOrgData = [
+      { name: 'Thing', kind: 'type', description: 'The most generic type of item. All other types can be described as Thing.', url: 'https://schema.org/Thing' },
+      { name: 'Person', kind: 'type', description: 'A person (alive, dead, undead, or fictional).', url: 'https://schema.org/Person' },
+      { name: 'Organization', kind: 'type', description: 'An organization such as a school, NGO, corporation, club, etc.', url: 'https://schema.org/Organization' },
+      { name: 'Product', kind: 'type', description: 'Any offered product or service.', url: 'https://schema.org/Product' },
+      { name: 'Event', kind: 'type', description: 'An event happening at a certain time and location.', url: 'https://schema.org/Event' },
+      { name: 'Place', kind: 'type', description: 'Physical entities such as buildings, parks, and cities.', url: 'https://schema.org/Place' },
+      { name: 'CreativeWork', kind: 'type', description: 'The most generic kind of creative work, including books, movies, photographs, etc.', url: 'https://schema.org/CreativeWork' },
+      { name: 'name', kind: 'property', description: 'The name of the item.', url: 'https://schema.org/name' },
+      { name: 'description', kind: 'property', description: 'A description of the item.', url: 'https://schema.org/description' },
+      { name: 'url', kind: 'property', description: 'URL of the item.', url: 'https://schema.org/url' },
+    ];
+    
+    function search(query, options = {}) {
+      const q = query.toLowerCase();
+      return schemaOrgData.filter(item => {
+        if (options.types && item.kind === 'type' && (item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q))) return true;
+        if (options.properties && item.kind === 'property' && (item.name.toLowerCase().includes(q) || item.description.toLowerCase().includes(q))) return true;
+        return false;
+      });
+    }
+    
+    function renderResults(results, query) {
+      if (results.length === 0) {
+        resultsDiv.innerHTML = `<div class="no-results"><p>No results found for "${query}"</p></div>`;
+        return;
+      }
+      
+      let html = `<div class="results-header"><span class="results-count">${results.length} result${results.length > 1 ? 's' : ''}</span></div>`;
+      
+      results.forEach(item => {
+        const typeClass = item.kind === 'type' ? 'type-type' : item.kind === 'property' ? 'type-property' : 'type-enumeration';
+        html += `
+          <div class="result-card">
+            <span class="result-type ${typeClass}">${item.kind}</span>
+            <div class="result-name">
+              <a href="${item.url}" target="_blank" rel="noopener">${item.name}</a>
+            </div>
+            <p class="result-description">${item.description}</p>
+            <div class="result-meta">
+              <a href="${item.url}" target="_blank">View on schema.org →</a>
+            </div>
+          </div>
+        `;
+      });
+      
+      resultsDiv.innerHTML = html;
+    }
+    
+    searchForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = queryInput.value.trim();
+      if (!query) return;
+      
+      searchBtn.disabled = true;
+      searchBtn.textContent = 'Searching...';
+      resultsDiv.innerHTML = '<div class="loading">Searching schema.org...</div>';
+      
+      // Simulate search delay
+      await new Promise(r => setTimeout(r, 300));
+      
+      const options = {
+        types: document.getElementById('searchTypes').checked,
+        properties: document.getElementById('searchProperties').checked,
+      };
+      
+      const results = search(query, options);
+      renderResults(results, query);
+      
+      searchBtn.disabled = false;
+      searchBtn.textContent = 'Search';
+    });
+    
+    // Focus on load
+    queryInput.focus();
+  </script>
+</body>
+</html>
