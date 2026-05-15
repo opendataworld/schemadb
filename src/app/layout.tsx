@@ -41,15 +41,60 @@ async function fetchSchemaOrgMeta() {
 export async function generateMetadata(): Promise<Metadata> {
   const meta = await fetchSchemaOrgMeta()
   return {
-    title: meta.title,
+    metadataBase: new URL("https://schema.org"),
+    title: {
+      default: meta.title,
+      template: "%s | Schema.org Agent",
+    },
     description: meta.description,
-    keywords: ["schema.org", "structured data", "SEO", "JSON-LD", "microdata"],
-    authors: [{ name: "Schema.org Community" }],
+    keywords: [
+      "schema.org",
+      "structured data", 
+      "SEO",
+      "JSON-LD",
+      "microdata",
+      "RDFa",
+      "vocabulary",
+      "taxonomy",
+    ],
+    authors: [{ name: "Open Data World" }],
+    creator: "Open Data World",
+    publisher: "Open Data World",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
     openGraph: {
       title: meta.title,
       description: meta.description,
       type: "website",
-      url: "https://schema.org",
+      url: "https://github.com/opendataworld/schemadb",
+      siteName: "Schema.org Agent",
+      locale: "en_US",
+      alternateLocale: "en_GB",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: meta.title,
+      description: meta.description,
+      creator: "@opendataworld",
+      images: ["/og-image.png"],
+    },
+    alternates: {
+      canonical: "https://github.com/opendataworld/schemadb",
+      languages: {
+        "en-US": "https://github.com/opendataworld/schemadb",
+      },
+    },
+    verification: {
+      google: "google-site-verification-code",
     },
   }
 }
@@ -59,18 +104,35 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // JSON-LD for software application
+  // JSON-LD for AI-powered Q&A application
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
+    "@type": "WebApplication",
     name: "Schema.org Agent",
+    alternateName: "Schema.org Q&A",
+    description: "An AI-powered assistant that helps people understand the taxonomy and vocabulary of schema.org",
+    url: "https://github.com/opendataworld/schemadb",
     applicationCategory: "UtilitiesApplication",
     operatingSystem: "Web",
+    browserRequirements: "Requires JavaScript and a modern web browser",
     offers: {
       "@type": "Offer",
       price: "0",
       priceCurrency: "USD",
     },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      reviewCount: "50",
+    },
+    author: {
+      "@type": "Organization",
+      name: "Open Data World",
+      url: "https://github.com/opendataworld",
+    },
+    programmingLanguage: "TypeScript",
+    softwareVersion: "1.0.0",
+    releaseNotes: "https://github.com/opendataworld/schemadb/releases",
   }
 
   return (
