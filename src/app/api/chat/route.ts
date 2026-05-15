@@ -30,7 +30,8 @@ const GCLOUD_KEY = process.env.GCLOUD_KEY || ""
 const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY || ""
 const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY || ""
 
-// Auto-detect available provider based on env keys or OAuth session
+import { expandContext } from "@/lib/cot/expand"
+export { TOOLS } from "@/lib/tools"
 // Priority: OAuth creds > API keys > Free tier > Local
 export async function autoDetectProvider(sessionUser?: any): Promise<string> {
   // 1. Check if user authenticated with Google/GCP OAuth
