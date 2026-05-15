@@ -1,43 +1,21 @@
-# StackerBuild - Smaller images than Docker
+# stacker.yaml - OCI-native build for schema.org Agent
 
-## Install
+build: schemaorg-agent
+from:
+  - type: oci
+    ref: ghcr.io/caddy:2-alpine
+    
+run: |
+  RUN /var/lib/stacker/layers.sh <<'RUNSCRIPT'
+    copy dist /srv
+    copy Caddyfile /etc/caddy/Caddyfile
+    EXPOSE 8080
+    CMD ["--config", "/etc/caddy/Caddyfile"]
+  RUNSCRIPT
 
-```bash
-curl -sfL https://get.stackerbuild.io | sh
-```
+build_args:
+  - DESTDIR=/srv
 
-## Build
-
-```bash
-stacker build --layer-type squashfs
-```
-
-## stacker.yaml
-
-```yaml
-schemaorg-agent-build:
-  from: docker://zothub.io/c3/ubuntu/go-devel-amd64:18
-  import:
-    - .
-  run: |
-    npm ci
-    npm run build
-
-schemaorg-agent:
-  from: docker://zothub.io/tools/busybox:stable
-  import:
-    - stacker://schemaorg-agent-build/.next/standalone
-  run: |
-    cp /stacker/schemaorg-agent-build/.next/standalone/. ./
-    chmod +x server.js
-    ./server.js
-```
-
-## Why StackerBuild?
-
-| | Docker | StackerBuild |
-|--------|-------------|
-| Image size | ~1GB | ~50MB |
-| Build time | ~5 min | ~2 min |
-| Layers | OverlayFS | SquashFS |
-| Security | Root required | User namespaces |
+cmd:
+  - --config
+  - /etc/caddy/Caddyfile

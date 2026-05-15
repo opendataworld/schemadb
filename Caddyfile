@@ -1,0 +1,12 @@
+# Caddyfile for schema.org Agent
+
+:8080 {
+    root * /srv
+    encode gzip
+    
+    # Serve static files
+    file_server
+    
+    # SPA fallback (for client-side routing)
+    try_files {path} /index.html
+}
