@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
+import { COT_CONFIG, buildPrompt } from "@/lib/cot/config"
+import { analyze } from "@/lib/cot/analyze"
+import { streamWithCoT } from "@/lib/cot/stream"
 
 interface ChatMessage {
   role: "system" | "user" | "assistant"
