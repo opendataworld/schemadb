@@ -212,3 +212,51 @@ runc run llama
 | Privacy | ✅ |
 | Free | Paid |
 | User controls | User controls |
+
+## Search Sources (Trust-Ordered)
+
+| Source | Trust | Type |
+|--------|-------|------|
+| schema.org | 100 | Primary |
+| W3C | 95 | Trust |
+| Wikipedia | 90 | Trust |
+| MDN | 85 | Trust |
+| Google Dev | 80 | Trust |
+| DuckDuckGo | 50 | Web (FOSS) |
+
+**Super Search modes:**
+- `fast` - schema.org only
+- `deep` - top 3 trust + 2 web
+- `comprehensive` - all sources
+
+## Modules
+
+```
+src/lib/
+├── super/     # Super search (all sources)
+├── fallback/  # Unified fallback + citations
+├── trust/     # Trusted sources
+├── search/    # Web search
+├── cot/       # Chain of thought
+├── rag/       # Knowledge retrieval
+├── memory/    # Session storage
+├── iam/       # Access control
+├── audit/     # Audit logs
+└── monitoring # Health + errors
+```
+
+## Environment Variables
+
+All configs in `.env.example`:
+
+```bash
+# Search
+SUPER_ENABLED=false
+SUPER_MODE=deep
+
+# Chain of Thought
+COT_ENABLED=false
+
+# Trusted Sources
+TRUST_SOURCES=schemaorg,wikipedia,w3c,mdn
+```
