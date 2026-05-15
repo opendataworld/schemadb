@@ -1,0 +1,8 @@
+[database]
+connection = "mem://"
+
+[tables]
+tables = ["entities", "relations", "sessions", "knowledge", "rules", "events"]
+
+[migrations]
+auto_migrate = true
