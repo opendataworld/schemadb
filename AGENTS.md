@@ -33,3 +33,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## Key Files
 - `src/app/api/chat/route.ts` - LLM detection & streaming
 - `src/components/provider-selector.tsx` - dropdown UI
+
+## Source References
+- schema.org: https://schema.org
+- Wikipedia: https://en.wikipedia.org/wiki/Schema.org
+- W3C: https://www.w3.org
+- llama.cpp: https://github.com/ggerganov/llama.cpp
+- Ollama: https://ollama.ai
+- HF TGI: https://huggingface.co/text-generation-inference
