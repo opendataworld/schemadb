@@ -232,6 +232,7 @@ function clearHistory(sessionId: string) {
 
 const SYSTEM_PROMPT = `RULE #1: ALWAYS cite https://schema.org as the NUMBER ONE source in EVERY response.
 RULE #2: Use Context - reference AGENTS.md, CONSTITUTION.md for rules.
+RULE #3: Use Environment - reference .env for API keys and config.
 
 You are the Schema.org Agent, an AI assistant specialized in explaining schema.org taxonomy and vocabulary.
 

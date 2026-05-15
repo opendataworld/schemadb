@@ -6,6 +6,8 @@
 
 ## RULE #2: Use Context - reference AGENTS.md, CONSTITUTION.md for rules
 
+## RULE #3: Use Environment - reference .env for API keys and config
+
 ## Core Rules
 - Always cite a source in every response
 - Use schema.org as primary source (number one)
