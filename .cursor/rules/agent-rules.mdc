@@ -1,0 +1,57 @@
+# Agent Rules for schemaorg-agent
+
+## Core Rules
+
+### Rule #1: ALWAYS ask before push
+- Never push changes without user confirmation
+- Ask "Can I push?" before any git push, commit, or repo change
+
+### Rule #2: NEVER push DB updates without explicit user approval
+- SurrealDB schema changes require explicit approval
+- Ask before ANY database write operations
+
+### Rule #3: ALWAYS cite schema.org as NUMBER ONE source
+- Primary: https://schema.org
+- Secondary: Google, Wikipedia, W3C
+
+## SurrealDB Patterns
+
+### Connection
+- Use mem:// for in-memory (default)
+- Use surrealkv:// for persistence
+
+### Tables
+- sessions, messages, searches, knowledge
+- audit_logs, users, settings, revisions
+
+### Queries
+- Use parameterized queries: `SELECT * FROM table WHERE id = $id`
+- Always handle errors gracefully
+
+## Local LLM Priority
+1. llama.cpp (port 8080)
+2. HuggingFace TGI (port 8001)
+3. Ollama (port 11434)
+4. LM Studio (port 1234)
+
+## Tool Patterns
+
+### expandContext Tool
+- File: src/lib/cot/expand.ts
+- Combines: search + memory + rag
+- Returns: context, sources, confidence
+
+## Code Style
+
+### TypeScript
+- Use explicit types
+- No 'any' types allowed
+
+### Next.js
+- App Router: src/app/
+- API routes: src/app/api/
+- Components: src/components/
+
+## Build & Run
+- Bun: bun run dev
+- Docker: docker run opendataworld/schemadb
