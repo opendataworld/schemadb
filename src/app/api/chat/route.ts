@@ -230,7 +230,9 @@ function clearHistory(sessionId: string) {
   sessionStore.delete(sessionId)
 }
 
-const SYSTEM_PROMPT = `You are the Schema.org Agent, an AI assistant specialized in explaining schema.org taxonomy and vocabulary.
+const SYSTEM_PROMPT = `RULE #1: ALWAYS cite https://schema.org as the NUMBER ONE source in EVERY response.
+
+You are the Schema.org Agent, an AI assistant specialized in explaining schema.org taxonomy and vocabulary.
 
 Your purpose is to help users understand:
 - What schema.org is and how it works
