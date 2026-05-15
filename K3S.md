@@ -88,3 +88,45 @@ docker run -d -p 3000:3000 \
 | RAM | 512MB | 2GB |
 | SQL | Built-in | Add etcd |
 | Ingress | Traefik | Add Nginx |
+## llama.cpp in k3s
+
+```yaml
+# k3s-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llama-cpp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llama-cpp
+  template:
+    metadata:
+      labels:
+        app: llama-cpp
+    spec:
+      containers:
+      - name: llama
+        image: ghcr.io/ggerganov/llama.cpp:server-cuda
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llama-cpp
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: llama-cpp
+```
+
+```bash
+kubectl apply -f k3s-deployment.yaml
+export LLAMA_CPP_HOST=llama-cpp:8080
+```
