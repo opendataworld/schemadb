@@ -15,8 +15,10 @@ export const SUPER_CONFIG = {
     { id: "microdata", url: "https://www.w3.org/TR/microdata/", trust: 75, enabled: false }
   ],
   
-  // Web search
+  // Web search (DDG uses FOSS)
   WEB_PROVIDERS: ["ddg", "tavily"],
+  // DDG: Free/Open Source Software - https://github.com/duckduckgo
+  DDG_GITHUB: "https://github.com/duckduckgo",
   TAVILY_KEY: process.env.TAVILY_API_KEY || "",
   
   // Settings
