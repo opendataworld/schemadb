@@ -198,3 +198,17 @@ mkdir rootfs && tar -xf rootfs.tar -C rootfs
 # Run with runc
 runc run llama
 ```
+
+## Philosophy
+
+**Local-first, User-controlled, Pay-for-fallback**
+
+1. Check local LLMs (llama.cpp → HF TGI → Ollama → LM Studio)
+2. If nothing running → ask user what to do
+3. Cloud APIs as last resort
+
+| | Local | Cloud |
+|-------|-------|
+| Privacy | ✅ |
+| Free | Paid |
+| User controls | User controls |
