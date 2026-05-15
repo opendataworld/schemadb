@@ -1,0 +1,19 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Docker
+        run: docker build -t schemaorg .
+      
+      - name: Run
+        run: docker run -d -p 3000:3000 schemaorg
