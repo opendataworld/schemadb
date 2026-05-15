@@ -141,3 +141,24 @@ curl -L -o model.gguf https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/ma
 # Set in app
 export LLAMA_CPP_HOST=http://localhost:8080/v1
 ```
+
+## Local LLM (just model)
+
+### Option 1: Ollama (recommended)
+
+```bash
+# Install + run model
+curl -fsSL https://ollama.ai/install.sh
+ollama run llama3
+```
+
+### Option 2: LM Studio
+
+Download: lmstudio.ai
+
+```bash
+# Just download model, run in app
+export LMSTUDIO_BASE_URL=http://localhost:1234/v1
+```
+
+That's it. No server setup.
