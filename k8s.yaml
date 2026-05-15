@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schemaorg-agent
+  labels:
+    app: schemaorg-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: schemaorg-agent
+  template:
+    metadata:
+      labels:
+        app: schemaorg-agent
+        version: v1
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: app
+        image: schemaorg-agent:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: GROQ_KEY
+          valueFrom:
+            secretKeyRef:
+              name: schemaorg-secrets
+              key: groq-key
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: schemaorg-secrets
+              key: nextauth-secret
+        - name: NEXTAUTH_URL
+          value: "https://schemaorg.example.com"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /api/chat
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/chat
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /api/chat
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          failureThreshold: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: schemaorg-agent
+  labels:
+    app: schemaorg-agent
+spec:
+  type: ClusterIP
+  selector:
+    app: schemaorg-agent
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3000
+    protocol: TCP
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: schemaorg-secrets
+type: Opaque
+stringData:
+  groq-key: ""      # Set your key
+  nextauth-secret: "" # openssl rand -base64 32
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: schemaorg-agent
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: schemaorg-agent
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+      - type: Pods
+        value: 4
+        periodSeconds: 15
+      selectPolicy: Max
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: schemaorg-agent
+  labels:
+    app: schemaorg-agent
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: schemaorg.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: schemaorg-agent
+            port:
+              number: 80
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: schemaorg-config
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
