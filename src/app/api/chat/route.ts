@@ -132,6 +132,20 @@ export async function getModels() {
     // LM Studio not running
   }
 
+  // Check local Ollama
+  try {
+    const res = await fetch(`${OLLAMA_HOST}/api/tags`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      const data = await res.json()
+      const ollamaModels = data.models?.map((m: any) => m.name) || []
+      for (const m of ollamaModels.slice(0, 3)) {
+        models[`ollama:${m}`] = { name: `Ollama: ${m}`, available: true }
+      }
+    }
+  } catch {
+    // Ollama not running
+  }
+
   // Check llama.cpp server
   try {
     const res = await fetch(`${LLAMA_CPP_HOST}/v1/models`, { signal: AbortSignal.timeout(2000) })
@@ -146,7 +160,7 @@ export async function getModels() {
     // llama.cpp not running
   }
 
-  // Check Hugging Face Text Generation Inference (TGI) - handles all models
+  // Check Hugging Face TGI (handles all models)
   try {
     const res = await fetch(`${HF_HOST}/v1/models`, { signal: AbortSignal.timeout(2000) })
     if (res.ok) {
@@ -158,6 +172,20 @@ export async function getModels() {
     }
   } catch {
     // HF TGI not running
+  }
+
+  // Check Docker Ollama (if running)
+  try {
+    const res = await fetch(`http://${DOCKER_OLLAMA}/api/tags`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      const data = await res.json()
+      const ollamaModels = data.models?.map((m: any) => m.name) || []
+      for (const m of ollamaModels.slice(0, 3)) {
+        models[`docker:${m}`] = { name: `Docker: ${m}`, available: true }
+      }
+    }
+  } catch {
+    // Docker Ollama not running
   }
 
   return models
