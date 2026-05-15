@@ -66,3 +66,27 @@ docker tag schemaorg-agent username/schemaorg-agent:latest
 # Push
 docker push username/schemaorg-agent:latest
 ```
+
+## Run with runc
+
+```bash
+# Install runc (~10MB)
+curl -LO https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64
+chmod +x runc.amd64 && sudo mv runc.amd64 /usr/local/bin/runc
+
+# Pull image
+docker pull ghcr.io/opendataworld/schemaorg-agent:latest
+
+# Export to rootfs
+docker create ghcr.io/opendataworld/schemaorg-agent:latest
+docker export CONTAINER_ID | tar -C rootfs -xf -
+
+# Run
+runc run schemaorg
+```
+
+Or directly:
+
+```bash
+runc run -b container-id schemaorg
+```
