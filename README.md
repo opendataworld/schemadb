@@ -175,3 +175,26 @@ docker run -d -p 8080:8080 --gpus all -v /path/to/models:/models ghcr.io/ggergan
 # Run model
 export LLAMA_CPP_HOST=http://localhost:8080
 ```
+
+## Fallback: If nothing running
+
+If no local LLM detected, use runc to spin up one:
+
+```bash
+# Install runc (~10MB)
+curl -LO https://github.com/opencontainers/runc/releases/download/v1.1.12/runc.amd64
+chmod +x runc.amd64 && sudo mv runc.amd64 /usr/local/bin/runc
+
+# Run llama.cpp in runc
+docker pull ghcr.io/ggerganov/llama.cpp:server-cuda
+docker export -o rootfs.tar ghcr.io/ggerganov/llama.cpp:server-cuda
+mkdir rootfs && tar -xf rootfs.tar -C rootfs
+
+# Or run Ollama
+docker pull ollama/ollama
+docker export -o rootfs.tar ollama/ollama
+mkdir rootfs && tar -xf rootfs.tar -C rootfs
+
+# Run with runc
+runc run llama
+```
