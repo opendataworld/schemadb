@@ -162,3 +162,16 @@ export LMSTUDIO_BASE_URL=http://localhost:1234/v1
 ```
 
 That's it. No server setup.
+
+## llama.cpp in Docker
+
+```bash
+# CPU
+docker run -d -p 8080:8080 -v /path/to/models:/models ghcr.io/ggerganov/llama.cpp:server
+
+# GPU
+docker run -d -p 8080:8080 --gpus all -v /path/to/models:/models ghcr.io/ggerganov/llama.cpp:server-cuda
+
+# Run model
+export LLAMA_CPP_HOST=http://localhost:8080
+```
