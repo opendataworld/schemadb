@@ -123,3 +123,21 @@ The app checks local models first:
 1. Check Ollama
 2. Check LM Studio
 3. Fall back to API key
+
+## Llama.cpp (local)
+
+```bash
+# Install
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+make
+
+# Download model
+curl -L -o model.gguf https://huggingface.co/TheBloke/Llama-2-7B-GGUF/resolve/main/llama-2-7b.Q4_K_M.gguf
+
+# Run server
+./server -m model.gguf -c 4096
+
+# Set in app
+export LLAMA_CPP_HOST=http://localhost:8080/v1
+```
