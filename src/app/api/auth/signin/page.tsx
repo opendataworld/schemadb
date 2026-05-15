@@ -39,6 +39,18 @@ export default function SignIn() {
             </svg>
             Sign in with Google
           </button>
+
+          {(process.env.NEXT_PUBLIC_KEYCLOAK_ENABLED === "true") && (
+            <button
+              onClick={() => signIn("keycloak", { callbackUrl: "/" })}
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-600 py-3 font-medium text-slate-100 transition-all hover:bg-slate-800"
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M21 2H3a2 2 0 00-2 2v16a2 2 0 002 2h18a2 2 0 002-2V4a2 2 0 00-2-2zm-9 15.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5zM6 6h9v3H6V6z" fill="#E53935"/>
+              </svg>
+              Sign in with Keycloak
+            </button>
+          )}
         </div>
 
         <p className="text-sm text-slate-500">
