@@ -1,0 +1,35 @@
+---
+const title = 'schema.org Agent';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>{title}</title>
+  <style>
+    body { font-family: system-ui; max-width: 800px; margin: 0 auto; padding: 2rem; }
+    h1 { color: #2563eb; }
+    pre { background: #f5f5f5; padding: 1rem; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>📋 schema.org Agent</h1>
+  <p>An AI agent that helps understand <a href="https://schema.org">schema.org</a></p>
+  
+  <h2>Config</h2>
+  <pre>
+SURREAL_URL=ws://localhost:8000
+SURREAL_NS=schemaorg
+SURREAL_DB=agent
+  </pre>
+  
+  <h2>Start</h2>
+  <pre>
+# SurrealDB
+surreal start --import-file ./surrealql/config.surql
+
+# Agent
+node server.mjs
+  </pre>
+</body>
+</html>

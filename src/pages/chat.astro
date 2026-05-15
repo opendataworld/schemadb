@@ -1,0 +1,121 @@
+---
+const title = 'schema.org Chat';
+---
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>{title}</title>
+  <script src="https://cdn.jsdelivr.net/npm/fabric@7/dist/fabric.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui; margin: 0; background: #1a1a2e; color: #eee; }
+    #app { display: flex; height: 100vh; }
+    #sidebar { width: 280px; background: #16213e; padding: 1rem; overflow-y: auto; }
+    #main { flex: 1; display: flex; flex-direction: column; }
+    #canvas-container { flex: 1; background: #0f0f23; position: relative; }
+    #input-bar { padding: 1rem; background: #16213e; display: flex; gap: 0.5rem; }
+    input { flex: 1; padding: 0.75rem; border: none; border-radius: 8px; background: #1a1a2e; color: #fff; }
+    button { padding: 0.75rem 1.5rem; border: none; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+    button:hover { background: #3b82f6; }
+    .type-item { padding: 0.5rem; margin: 0.25rem 0; background: #1a1a2e; border-radius: 4px; cursor: grab; }
+    .type-item:hover { background: #2563eb; }
+    .msg { padding: 0.5rem 1rem; margin: 0.25rem 0; border-radius: 8px; }
+    .msg-user { background: #2563eb; margin-left: 20%; }
+    .msg-agent { background: #16213e; margin-right: 20%; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <h3>📚 schema.org Types</h3>
+      <div class="type-item" draggable="true" data-type="Thing">Thing</div>
+      <div class="type-item" draggable="true" data-type="Person">Person</div>
+      <div class="type-item" draggable="true" data-type="Organization">Organization</div>
+      <div class="type-item" draggable="true" data-type="Product">Product</div>
+      <div class="type-item" draggable="true" data-type="Event">Event</div>
+      <div class="type-item" draggable="true" data-type="Place">Place</div>
+      <hr/>
+      <h3>🎨 Tools</h3>
+      <button onclick="addRect()">⬜ Box</button>
+      <button onclick="addCircle()">⭕ Circle</button>
+      <button onclick="addText('Hello')">📝 Text</button>
+      <button onclick="clearCanvas()">🗑️ Clear</button>
+    </div>
+    <div id="main">
+      <div id="canvas-container">
+        <canvas id="c"></canvas>
+      </div>
+      <div id="input-bar">
+        <input type="text" id="msg" placeholder="Ask about schema.org..." />
+        <button onclick="send()">Send</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Fabric.js canvas
+    const container = document.getElementById('canvas-container');
+    const canvas = new fabric.Canvas('c', {
+      width: container.clientWidth,
+      height: container.clientHeight,
+      backgroundColor: '#0f0f23'
+    });
+    window.addEventListener('resize', () => {
+      canvas.setWidth(container.clientWidth);
+      canvas.setHeight(container.clientHeight);
+    });
+
+    function addRect() {
+      canvas.add(new fabric.Rect({
+        left: 100, top: 100, fill: '#2563eb', width: 80, height: 60, rx: 8, ry: 8
+      }));
+    }
+    function addCircle() {
+      canvas.add(new fabric.Circle({
+        left: 200, top: 100, fill: '#10b981', radius: 40
+      }));
+    }
+    function addText(msg) {
+      canvas.add(new fabric.IText(msg, {
+        left: 300, top: 100, fill: '#fff', fontFamily: 'system-ui', fontSize: 20
+      }));
+    }
+    function clearCanvas() { canvas.clear(); }
+
+    // Drag & drop
+    document.querySelectorAll('.type-item').forEach(el => {
+      el.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('type', el.dataset.type);
+      });
+    });
+    container.addEventListener('dragover', e => e.preventDefault());
+    container.addEventListener('drop', e => {
+      const type = e.dataTransfer.getData('type');
+      if (type) {
+        canvas.add(new fabric.Rect({
+          left: e.offsetX - 40, top: e.offsetY - 30,
+          fill: '#2563eb', width: 80, height: 60, rx: 8, ry: 8
+        }));
+        canvas.add(new fabric.Text(type, {
+          left: e.offsetX - 30, top: e.offsetY - 10, fill: '#fff', fontSize: 14
+        }));
+      }
+    });
+
+    // Chat
+    const msgInput = document.getElementById('msg');
+    msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') send(); });
+    
+    function send() {
+      const text = msgInput.value;
+      if (!text) return;
+      // Add user message bubble
+      canvas.add(new fabric.Text('You: ' + text, {
+        left: 20, top: canvas.height - 60, fill: '#93c5fd', fontSize: 14
+      }));
+      msgInput.value = '';
+      canvas.renderAll();
+    }
+  </script>
+</body>
+</html>
