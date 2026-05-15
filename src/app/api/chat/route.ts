@@ -15,6 +15,7 @@ const GOOGLE_KEY = process.env.GOOGLE_API_KEY || ""
 const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://localhost:11434"
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3"
 const LMSTUDIO_HOST = process.env.LMSTUDIO_HOST || "http://localhost:1234"
+const LLAMA_CPP_HOST = process.env.LLAMA_CPP_HOST || "http://localhost:8080"
 const DOCKER_OLLAMA = process.env.DOCKER_OLLAMA || "localhost:11434"
 const PODMAN_OLLAMA = process.env.PODMAN_OLLAMA || "localhost:11434"
 const HF_TOKEN = process.env.HF_TOKEN || ""
@@ -128,6 +129,20 @@ export async function getModels() {
     }
   } catch {
     // LM Studio not running
+  }
+
+  // Check llama.cpp server
+  try {
+    const res = await fetch(`${LLAMA_CPP_HOST}/v1/models`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      const data = await res.json()
+      const cppModels = data.data?.map((m: any) => m.id) || []
+      for (const m of cppModels.slice(0, 3)) {
+        models[`llama.cpp:${m}`] = { name: `llama.cpp: ${m}`, available: true }
+      }
+    }
+  } catch {
+    // llama.cpp not running
   }
 
   return models
@@ -404,6 +419,10 @@ function getStreamProvider(selectedModel: string, messages: ChatMessage[]): Asyn
     const model = selectedModel.replace("lmstudio:", "")
     return streamLMStudio(model, messages)
   }
+  if (selectedModel.startsWith("llama.cpp:")) {
+    const model = selectedModel.replace("llama.cpp:", "")
+    return streamLlamaCpp(model, messages)
+  }
   switch (selectedModel) {
     case "anthropic":
       return streamAnthropic(messages)
@@ -559,6 +578,27 @@ async function* streamLMStudio(model: string, messages: ChatMessage[]): AsyncGen
   })
   if (!res.ok) {
     yield "LM Studio not available"
+    return
+  }
+  const reader = res.body?.getReader()
+  const decoder = new TextDecoder()
+  while (reader) {
+    const { done, value } = await reader.read()
+    if (done) break
+    const text = decoder.decode(value)
+    yield text
+  }
+}
+
+// llama.cpp server streaming
+async function* streamLlamaCpp(model: string, messages: ChatMessage[]): AsyncGenerator<string> {
+  const res = await fetch(`${LLAMA_CPP_HOST}/v1/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, messages, stream: true }),
+  })
+  if (!res.ok) {
+    yield "llama.cpp not available"
     return
   }
   const reader = res.body?.getReader()
