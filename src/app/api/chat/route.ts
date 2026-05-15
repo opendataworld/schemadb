@@ -48,6 +48,27 @@ export async function autoDetectProvider(sessionUser?: any): Promise<string> {
   if (TOGETHER_KEY) return "together"
   if (HF_TOKEN) return "huggingface"
   
+  // 4. Local LLMs - check in order
+  try {
+    await fetch(`${LLAMA_CPP_HOST}/v1/models`, { signal: AbortSignal.timeout(1000) })
+    return "llama-cpp"
+  } catch {}
+  try {
+    await fetch(`${HF_HOST}/v1/models`, { signal: AbortSignal.timeout(1000) })
+    return "hf"
+  } catch {}
+  try {
+    await fetch(`${OLLAMA_HOST}/api/tags`, { signal: AbortSignal.timeout(1000) })
+    return "ollama"
+  } catch {}
+  try {
+    await fetch(`${LMSTUDIO_HOST}/v1/models`, { signal: AbortSignal.timeout(1000) })
+    return "lmstudio"
+  } catch {}
+  
+  // Nothing running - return "none" to prompt user
+  return "none"
+  
   // Try primary, fallback to others on failure
 function getBestProvider(providers: string[], messages: ChatMessage[]): AsyncGenerator<string> {
   // Try the best available one
