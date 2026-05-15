@@ -1,25 +1,25 @@
-FROM node:18-alpine AS deps
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
+# schema.org Agent - Astro + Fabric.js (SurrealDB external)
+FROM node:22-alpine
 
-FROM node:18-alpine AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+
+# Install Astro
+RUN npm install -g astro
+
+# Copy app files
+COPY package.json ./
+COPY astro.config.mjs ./
+COPY src ./src
+COPY surrealql ./surrealql
+COPY server.mjs ./
+COPY .env.example ./
+
+# Install deps (legacy-peer-deps for zod transitively required by Astro)
+RUN npm install --legacy-peer-deps
+
+# Build Astro
 RUN npm run build
 
-FROM node:18-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 nextjs
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/package.json ./package.json
-RUN chown -R nextjs:nodejs /app
-USER nextjs
 EXPOSE 3000
-ENV PORT=3000
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 CMD wget --spider -q http://localhost:3000/api/chat
-CMD ["node", "server.js"]
+
+CMD ["node", "dist/server/entry.mjs"]
