@@ -53,3 +53,16 @@ docker push ghcr.io/opendataworld/schemaorg-agent:latest
 ```bash
 docker pull ghcr.io/opendataworld/schemaorg-agent:latest
 ```
+
+## Push to Docker Hub (Free)
+
+```bash
+# Login
+docker login -u USERNAME -p $DOCKERHUB_TOKEN
+
+# Tag
+docker tag schemaorg-agent username/schemaorg-agent:latest
+
+# Push
+docker push username/schemaorg-agent:latest
+```
