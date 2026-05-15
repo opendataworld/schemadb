@@ -16,6 +16,7 @@ const OLLAMA_HOST = process.env.OLLAMA_HOST || "http://localhost:11434"
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3"
 const LMSTUDIO_HOST = process.env.LMSTUDIO_HOST || "http://localhost:1234"
 const LLAMA_CPP_HOST = process.env.LLAMA_CPP_HOST || "http://localhost:8080"
+const HF_HOST = process.env.HF_HOST || "http://localhost:8001"
 const DOCKER_OLLAMA = process.env.DOCKER_OLLAMA || "localhost:11434"
 const PODMAN_OLLAMA = process.env.PODMAN_OLLAMA || "localhost:11434"
 const HF_TOKEN = process.env.HF_TOKEN || ""
@@ -143,6 +144,20 @@ export async function getModels() {
     }
   } catch {
     // llama.cpp not running
+  }
+
+  // Check Hugging Face Text Generation Inference (TGI) - handles all models
+  try {
+    const res = await fetch(`${HF_HOST}/v1/models`, { signal: AbortSignal.timeout(2000) })
+    if (res.ok) {
+      const data = await res.json()
+      const hfModels = data.models?.map((m: any) => m.id) || []
+      for (const m of hfModels.slice(0, 3)) {
+        models[`hf:${m}`] = { name: `HF: ${m}`, available: true }
+      }
+    }
+  } catch {
+    // HF TGI not running
   }
 
   return models
@@ -423,6 +438,10 @@ function getStreamProvider(selectedModel: string, messages: ChatMessage[]): Asyn
     const model = selectedModel.replace("llama.cpp:", "")
     return streamLlamaCpp(model, messages)
   }
+  if (selectedModel.startsWith("hf:")) {
+    const model = selectedModel.replace("hf:", "")
+    return streamHF(model, messages)
+  }
   switch (selectedModel) {
     case "anthropic":
       return streamAnthropic(messages)
@@ -599,6 +618,27 @@ async function* streamLlamaCpp(model: string, messages: ChatMessage[]): AsyncGen
   })
   if (!res.ok) {
     yield "llama.cpp not available"
+    return
+  }
+  const reader = res.body?.getReader()
+  const decoder = new TextDecoder()
+  while (reader) {
+    const { done, value } = await reader.read()
+    if (done) break
+    const text = decoder.decode(value)
+    yield text
+  }
+}
+
+// Hugging Face Text Generation Inference (handles all models)
+async function* streamHF(model: string, messages: ChatMessage[]): AsyncGenerator<string> {
+  const res = await fetch(`${HF_HOST}/v1/chat/completions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(HF_TOKEN && { Authorization: `Bearer ${HF_TOKEN}` }) },
+    body: JSON.stringify({ model, messages, stream: true }),
+  })
+  if (!res.ok) {
+    yield "HF not available"
     return
   }
   const reader = res.body?.getReader()
