@@ -40,6 +40,16 @@ export default function SignIn() {
             Sign in with Google
           </button>
 
+          <button
+            onClick={() => signIn("linkedin", { callbackUrl: "/" })}
+            className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-600 py-3 font-medium text-slate-100 transition-all hover:bg-slate-800"
+          >
+            <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.885-.492-3.315-2.594-3.315-1.349 0-2.363.909-2.363 2.594v5.29H9.351V9h3.414v1.561h.047c.472-.901 1.687-1.785 2.876-1.785 2.258 0 3.758 1.429 3.758 4.246v5.019zM5.337 7.433a2.063 2.063 0 01-2.063-2.063 2.064 2.064 0 112.063 2.063zm1.782 8.019H3.555V9h3.564v6.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+            Sign in with LinkedIn
+          </button>
+
           {(process.env.NEXT_PUBLIC_KEYCLOAK_ENABLED === "true") && (
             <button
               onClick={() => signIn("keycloak", { callbackUrl: "/" })}

@@ -9,12 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.63",
+    "@anthropic-ai/sdk": "^0.96.0",
     "@auth/core": "^0.41.2",
+    "@surrealdb/node": "^3.0.0",
     "@tailwindcss/typography": "^0.5.19",
+    "@xenova/transformers": "^2.17.2",
+    "ai": "^6.0.182",
     "next": "16.2.6",
     "next-auth": "^5.0.0-beta.31",
+    "node-llama-cpp": "^3.18.1",
+    "playwright": "^1.60.0",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "surrealdb": "^2.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

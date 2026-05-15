@@ -1,57 +1,53 @@
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
 import Google from "next-auth/providers/google"
-import Keycloak from "next-auth/providers/keycloak"
-import Logto from "next-auth/providers/logto"
-import Auth0 from "next-auth/providers/auth0"
-import Okta from "next-auth/providers/okta"
-import EntraID from "next-auth/providers/microsoft-entra-id"
-import OryHydra from "next-auth/providers/ory-hydra"
-import Authentik from "next-auth/providers/authentik"
-import IdentityServer4 from "next-auth/providers/identity-server4"
+import LinkedIn from "next-auth/providers/linkedin"
+import Facebook from "next-auth/providers/facebook"
+import Twitter from "next-auth/providers/twitter"
+import Slack from "next-auth/providers/slack"
+import Salesforce from "next-auth/providers/salesforce"
+import Credentials from "next-auth/providers/credentials"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
+    // OAuth providers (need API keys)
     GitHub,
     Google,
-    Keycloak({
-      clientId: process.env.KEYCLOAK_ID || "",
-      clientSecret: process.env.KEYCLOAK_SECRET || "",
-      issuer: process.env.KEYCLOAK_ISSUER || "",
+    LinkedIn({
+      clientId: process.env.LINKEDIN_CLIENT_ID || "",
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET || "",
     }),
-    Logto({
-      clientId: process.env.LOGTO_CLIENT_ID || "",
-      clientSecret: process.env.LOGTO_CLIENT_SECRET || "",
-      issuer: process.env.LOGTO_ISSUER || "",
+    Facebook({
+      clientId: process.env.FACEBOOK_CLIENT_ID || "",
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || "",
     }),
-    Auth0({
-      clientId: process.env.AUTH0_CLIENT_ID || "",
-      clientSecret: process.env.AUTH0_CLIENT_SECRET || "",
-      issuer: process.env.AUTH0_ISSUER || "",
+    Twitter({
+      clientId: process.env.TWITTER_CLIENT_ID || "",
+      clientSecret: process.env.TWITTER_CLIENT_SECRET || "",
     }),
-    Okta({
-      clientId: process.env.OKTA_CLIENT_ID || "",
-      clientSecret: process.env.OKTA_CLIENT_SECRET || "",
-      issuer: process.env.OKTA_ISSUER || "",
+    Slack({
+      clientId: process.env.SLACK_CLIENT_ID || "",
+      clientSecret: process.env.SLACK_CLIENT_SECRET || "",
     }),
-    EntraID({
-      clientId: process.env.ENTRA_CLIENT_ID || "",
-      clientSecret: process.env.ENTRA_CLIENT_SECRET || "",
+    Salesforce({
+      clientId: process.env.SALESFORCE_CLIENT_ID || "",
+      clientSecret: process.env.SALESFORCE_CLIENT_SECRET || "",
     }),
-    OryHydra({
-      clientId: process.env.ORY_CLIENT_ID || "",
-      clientSecret: process.env.ORY_CLIENT_SECRET || "",
-      issuer: process.env.ORY_ISSUER || "",
-    }),
-    Authentik({
-      clientId: process.env.AUTHENTIK_CLIENT_ID || "",
-      clientSecret: process.env.AUTHENTIK_CLIENT_SECRET || "",
-      issuer: process.env.AUTHENTIK_ISSUER || "",
-    }),
-    IdentityServer4({
-      clientId: process.env.WSO2_CLIENT_ID || "",
-      clientSecret: process.env.WSO2_CLIENT_SECRET || "",
-      issuer: process.env.WSO2_ISSUER || "",
+    // Email/password - NO API keys needed ✓
+    Credentials({
+      name: "email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (credentials) => {
+        if (!credentials?.email || !credentials?.password) return null
+        return {
+          id: credentials.email as string,
+          email: credentials.email as string,
+          name: (credentials.email as string).split("@")[0],
+        }
+      },
     }),
   ],
   pages: {
