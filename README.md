@@ -90,3 +90,36 @@ Or directly:
 ```bash
 runc run -b container-id schemaorg
 ```
+
+## Local LLM (no API key needed)
+
+Check available models:
+
+```bash
+# Ollama
+ollama list
+
+# LM Studio
+lm-studio list
+
+# Local AI
+curl http://localhost:1234/v1/models
+```
+
+Use local model by setting:
+
+```bash
+export OLLAMA_BASE_URL=http://localhost:11434
+# or
+export LMSTUDIO_BASE_URL=http://localhost:1234/v1
+```
+
+No API key needed if using local LLM.
+
+## Auto-detect Local Models
+
+The app checks local models first:
+
+1. Check Ollama
+2. Check LM Studio
+3. Fall back to API key
